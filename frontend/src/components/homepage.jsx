@@ -96,8 +96,8 @@ const Homepage = () => {
                   </div>
                 ) : (
                   <img
-                    src={post.thumbnail || "https://kvaser.com/wp-content/themes/kvaser/assets/images/new-homepage/blog/no-image.jpg"} 
-                    alt={post.heading}
+                    src={post.thumbnail || "https://i0.wp.com/lifeoutsidethemaze.com/wp-content/plugins/penci-portfolio//images/no-thumbnail.jpg?w=1170&ssl=1" } 
+                    
                     className="h-full w-full object-contain"
                   />
                 )}
