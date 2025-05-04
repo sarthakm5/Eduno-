@@ -246,6 +246,7 @@ const Post = () => {
     <div className="min-h-screen bg-gray-50">
       <Toaster position="top-center" />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Post header */}
         <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 mb-6 hover:shadow-lg transition-shadow duration-300">
           <div className="flex items-center justify-between">
             <div
@@ -274,6 +275,7 @@ const Post = () => {
           </div>
         </div>
 
+        {/* Post content */}
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-6 hover:shadow-lg transition-shadow duration-300">
           {post.heading && (
             <div className="p-4 sm:p-6 pb-0">
@@ -351,6 +353,7 @@ const Post = () => {
           </div>
         </div>
 
+        {/* Post actions */}
         <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 mb-6 flex justify-between items-center">
           <div className="flex space-x-4 sm:space-x-6">
             <button
@@ -359,7 +362,7 @@ const Post = () => {
               aria-label={liked ? 'Unlike post' : 'Like post'}
             >
               {liked ? <FaHeart className="text-red-600 text-xl" /> : <FaRegHeart className="text-xl" />}
-              <span className="text-sm font-medium hidden sm:inline">{likeCount}</span>
+              <span className="text-sm font-medium ml-1">{likeCount}</span>
             </button>
             <button
               onClick={() => setShowComments(!showComments)}
@@ -367,7 +370,7 @@ const Post = () => {
               aria-label={showComments ? 'Hide comments' : 'Show comments'}
             >
               <FaComment className="text-xl" />
-              <span className="text-sm font-medium hidden sm:inline">{comments.length}</span>
+              <span className="text-sm font-medium ml-1">{comments.length}</span>
             </button>
           </div>
           <button
@@ -380,6 +383,7 @@ const Post = () => {
           </button>
         </div>
 
+        {/* Comments section */}
         {showComments && (
           <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
             {token && (
@@ -427,18 +431,23 @@ const Post = () => {
               ) : (
                 comments.map((comment) => (
                   <div key={comment._id} className="p-4 sm:p-6 group hover:bg-gray-50 transition-colors duration-200">
-                    <div
-                      className="flex items-start space-x-3 cursor-pointer"
-                      onClick={() => navigate(`/profile/${comment.user?._id}`)}
-                    >
-                      <img
-                        src={comment.user?.profilepic || '/default-profile.png'}
-                        alt={comment.user?.username}
-                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-gray-100"
-                      />
+                    <div className="flex items-start space-x-3">
+                      <div
+                        className="cursor-pointer"
+                        onClick={() => navigate(`/profile/${comment.user?._id}`)}
+                      >
+                        <img
+                          src={comment.user?.profilepic || '/default-profile.png'}
+                          alt={comment.user?.username}
+                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-gray-100"
+                        />
+                      </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start">
-                          <div>
+                          <div
+                            className="cursor-pointer"
+                            onClick={() => navigate(`/profile/${comment.user?._id}`)}
+                          >
                             <h4 className="font-semibold text-gray-900 text-sm sm:text-base hover:underline">
                               {comment.user?.fullname || comment.user?.username || 'Unknown user'}
                             </h4>
@@ -450,7 +459,7 @@ const Post = () => {
                                 e.stopPropagation();
                                 handleDeleteComment(comment._id);
                               }}
-                              className="text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-2 rounded-full hover:bg-red-50 transform hover:scale-105"
+                              className="text-gray-400 hover:text-red-600 p-2 rounded-full hover:bg-red-50 transform hover:scale-105"
                               title="Delete comment"
                               aria-label="Delete comment"
                             >
