@@ -96,7 +96,7 @@ const Homepage = () => {
                   </div>
                 ) : (
                   <img
-                    src={post.thumbnail || "https://i0.wp.com/lifeoutsidethemaze.com/wp-content/plugins/penci-portfolio//images/no-thumbnail.jpg?w=1170&ssl=1" } 
+                    src={"https://i0.wp.com/lifeoutsidethemaze.com/wp-content/plugins/penci-portfolio//images/no-thumbnail.jpg?w=1170&ssl=1" } 
                     
                     className="h-full w-full object-contain"
                   />
