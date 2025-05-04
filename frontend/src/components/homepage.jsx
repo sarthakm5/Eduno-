@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 
 // Default thumbnail image (a simple placeholder from placeholder.com)
-const DEFAULT_THUMBNAIL = 'https://via.placeholder.com/300x200.png?text=No+Thumbnail';
+const DEFAULT_THUMBNAIL = 'https://i0.wp.com/lifeoutsidethemaze.com/wp-content/plugins/penci-portfolio//images/no-thumbnail.jpg?w=1170&ssl=1';
 
 const Homepage = () => {
   const [posts, setPosts] = useState([]);
