@@ -49,7 +49,7 @@ function Signup() {
     setErrors({});
     setLoading(true);
 
-    // Validation
+    // Validation - trim only during validation, not during input
     let newErrors = {};
     if (!fullname.trim()) newErrors.fullname = "Full name is required";
     if (!username.trim()) newErrors.username = "Username is required";
@@ -70,7 +70,7 @@ function Signup() {
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API}/api/register`,
-        { fullname, username, password },
+        { fullname: fullname.trim(), username: username.trim(), password },
         {
           headers: {
             "Content-Type": "application/json",
@@ -141,7 +141,7 @@ function Signup() {
             errors.fullname ? "border-red-500" : "border-gray-300 outline-blue-600"
           }`}
           value={fullname}
-          onChange={(e) => setFullname(e.target.value.trim())}
+          onChange={(e) => setFullname(e.target.value)}  {/* Removed .trim() here */}
         />
         {errors.fullname && <p className="text-red-500 text-sm">{errors.fullname}</p>}
 
