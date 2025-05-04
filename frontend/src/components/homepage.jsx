@@ -105,9 +105,9 @@ const Homepage = () => {
 
       
               <div className="p-4">
-                <h2 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
-                  {post.heading[20]+"..."}
-                </h2>
+               <h2 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
+  {post.heading.length > 20 ? `${post.heading.substring(0, 20)}...` : post.heading}
+</h2>
                 
               
                 <div className="flex items-center mt-4">
