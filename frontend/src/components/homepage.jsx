@@ -3,6 +3,9 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 
+// Default thumbnail image (a simple placeholder from placeholder.com)
+const DEFAULT_THUMBNAIL = 'https://via.placeholder.com/300x200.png?text=No+Thumbnail';
+
 const Homepage = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,14 +28,13 @@ const Homepage = () => {
   };
 
   const handleDeletePost = async (postId, e) => {
-    e.stopPropagation(); // Prevent navigating to post page
+    e.stopPropagation();
     try {
       const token = localStorage.getItem("edunotoken");
       if (window.confirm("Are you sure you want to delete this post?")) {
         await axios.delete(`${import.meta.env.VITE_API}/api/posts/${postId}`, {
           data: { token }
         });
-        // Remove the post from local state
         setPosts(posts.filter(post => post._id !== postId));
       }
     } catch (error) {
@@ -73,11 +75,10 @@ const Homepage = () => {
               onClick={() => handlePostClick(post._id)}
               className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform hover:scale-[1.02] hover:shadow-lg relative"
             >
-            
               {(isAdmin || post.canDelete) && (
                 <button
                   onClick={(e) => handleDeletePost(post._id, e)}
-                  className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition-colors"
+                  className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition-colors z-10"
                   title="Delete post"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -86,8 +87,7 @@ const Homepage = () => {
                 </button>
               )}
 
-              
-              <div className="h-48 w-full overflow-hidden">
+              <div className="h-48 w-full overflow-hidden bg-gray-100">
                 {post.contentType === 'text' ? (
                   <div className="h-full w-full bg-gradient-to-br from-blue-50 to-gray-100 flex items-center justify-center p-4">
                     <p className="text-gray-600 text-sm line-clamp-3">
@@ -96,25 +96,31 @@ const Homepage = () => {
                   </div>
                 ) : (
                   <img
-                    src={post.thumbnail || "https://i0.wp.com/lifeoutsidethemaze.com/wp-content/plugins/penci-portfolio//images/no-thumbnail.jpg?w=1170&ssl=1" } 
-                    
-                    className="h-full w-full object-contain"
+                    src={post.thumbnail || DEFAULT_THUMBNAIL}
+                    alt={post.heading}
+                    className="h-full w-full object-cover"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = DEFAULT_THUMBNAIL;
+                    }}
                   />
                 )}
               </div>
 
-      
               <div className="p-4">
-               <h2 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
-  {post.heading.length > 20 ? `${post.heading.substring(0, 32)}...` : post.heading}
-</h2>
+                <h2 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
+                  {post.heading.length > 32 ? `${post.heading.substring(0, 32)}...` : post.heading}
+                </h2>
                 
-              
                 <div className="flex items-center mt-4">
                   <img
-                    src={post.user.profilePic}
+                    src={post.user.profilePic || DEFAULT_THUMBNAIL}
                     alt={post.user.username}
                     className="w-8 h-8 rounded-full object-cover mr-2"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = DEFAULT_THUMBNAIL;
+                    }}
                   />
                   <div>
                     <p className="text-sm font-medium text-gray-700">{post.user.username}</p>
