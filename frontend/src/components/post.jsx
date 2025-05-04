@@ -388,12 +388,7 @@ const Post = () => {
           <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
             {token && (
               <form onSubmit={handleAddComment} className="p-4 sm:p-6 border-b border-gray-200">
-                <div className="flex items-center space-x-3">
-                  <img
-                    src={userData?.profilepic || '/default-profile.png'}
-                    alt="User"
-                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-gray-100"
-                  />
+                
                   <input
                     type="text"
                     value={newComment}
