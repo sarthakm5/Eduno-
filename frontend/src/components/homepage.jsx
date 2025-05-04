@@ -96,7 +96,7 @@ const Homepage = () => {
                   </div>
                 ) : (
                   <img
-                    src={post.thumbnail || post.fileUrl}
+                    src={post.thumbnail || post.fileUrl|| "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANgAAACUCAMAAADGZBfIAAAAMFBMVEXMzMz////IyMj4+Pj7+/vi4uLR0dHr6+vW1tbu7u7l5eXy8vLb29ve3t719fXFxcUDTORLAAADQElEQVR4nO2a25KrIBBFud/B///b0w2aOGaMVXk4kam9nkxLLJaNXEQhAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8Pcp9gL37Rp+hPLyCh2+XclPCJdeUuZvV/IDVLpMiJd6wsbIYu+rfV3ilmzVLimVkyIzi6lk6FFKvxeZWcyNTqL+WmRisSUNMf+Mu2ePMrOYP4q5/EzfxGJqHczsI9zoV1HjeGIxISJ7xUe0/zRrNzm1mKg5P9oetcN9ZzK3mCLW0MOLzDg2t9iOp9d4zuYXS/1g79Wfs+nFWp/F//DiJcvkc8VhlN3Ba34xF4fHcSk2vVg8WWNOLqaOLfCPiKmzfEHsfozZ/V8Vo4yZE+YWe1/Ezium3rFMmrFK8w3/Fi3bhGJCvEw2XrHXV7kjsV1Q1fVF7sik1QYAAADA7VEfTTTuOjdx2iqRNR9lY7Lr9VwXl3aJ/NWAjrytSZPdoJNSltaX/ILHC1F5scmbE1bSyRbHy/y+D6P5/ep+s/C/44wmMUMyjZYo2+rKxiajL4s3JMZbSKGLGU9ivB2hDAct/aPJKijml2BYTOmxW63b98VkUSxG9ed147rvRWtMSp76XSwpIYdYWFzLHDNqiAkzvmi5gZiWvosFrkaR9rFV6cSJmI4qSNPF6DZEPbI4xILU5iZixjS3F1vjm5hbFnMQi1kkrYfY4lbZ3MVU1Z7/eAuxHNO5mMwxHjNmtYtxiLV+ssesZrHYiqk3EYslt3Mx3dpRrObQ6miKOpscWKzG3Jsi9asseA8xeszOm2Jx7kUsJhOGWKUuP7NYKdSdkJDMVpvlHmKZRy2hzjuP8Yyl7t7FPDXdtfNQIsouRneHxEp/vyNuIrZUzphbay1exDhjdJbfxtU1O/oplmX/G7XaqBQPF16Gu4g53QdoY8tuz3knlh3v/dmqKcZigcaqIZaKZ2MWK5yxTOnrWR9iuZSvfYBKlVR0t/moSdken+8NsShXMRGylDx96mImURodiRHe9YdNCRqp6Q4pSm4mMS3G12X5a3PJ4LavvlwIz7e6W4hL/DjLITriIIW2c25cKGzl14P9FQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAz/wDadh/GurogBAAAAABJRU5ErkJggg=="}
                     alt={post.heading}
                     className="h-full w-full object-contain"
                   />
