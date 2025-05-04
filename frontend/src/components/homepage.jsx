@@ -73,7 +73,7 @@ const Homepage = () => {
               onClick={() => handlePostClick(post._id)}
               className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform hover:scale-[1.02] hover:shadow-lg relative"
             >
-              {/* Delete button (only show if admin or post owner) */}
+            
               {(isAdmin || post.canDelete) && (
                 <button
                   onClick={(e) => handleDeletePost(post._id, e)}
@@ -86,7 +86,7 @@ const Homepage = () => {
                 </button>
               )}
 
-              {/* Thumbnail */}
+              
               <div className="h-48 w-full overflow-hidden">
                 {post.contentType === 'text' ? (
                   <div className="h-full w-full bg-gradient-to-br from-blue-50 to-gray-100 flex items-center justify-center p-4">
@@ -103,13 +103,13 @@ const Homepage = () => {
                 )}
               </div>
 
-              {/* Content */}
+      
               <div className="p-4">
                 <h2 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
-                  {post.heading}
+                  {post.heading[20]+"..."}
                 </h2>
                 
-                {/* User info and timestamp */}
+              
                 <div className="flex items-center mt-4">
                   <img
                     src={post.user.profilePic}
