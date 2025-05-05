@@ -141,7 +141,7 @@ function Signup() {
             errors.fullname ? "border-red-500" : "border-gray-300 outline-blue-600"
           }`}
           value={fullname}
-          onChange={(e) => setFullname(e.target.value)}  {/* Removed .trim() here */}
+          onChange={(e) => setFullname(e.target.value)}
         />
         {errors.fullname && <p className="text-red-500 text-sm">{errors.fullname}</p>}
 
