@@ -61,7 +61,7 @@ const likes = async (req, res) => {
         );
         await postAuthor.save({ session });
       } else {
-        // Like the post
+        
         await postmodel.findByIdAndUpdate(
           postid,
           { $addToSet: { likes: user._id } },
@@ -74,16 +74,21 @@ const likes = async (req, res) => {
           { session }
         );
 
-        // Add notification
-        postAuthor.notification.push(`${user.username} liked your post` );
+        postAuthor.notification.push({
+          type: 'like',
+          from: user._id,
+          post: post._id,
+          message: `${user.username} liked your post `,
+          read: false
+      });
         await postAuthor.save({ session });
       }
 
-      // Commit the transaction
+   
       await session.commitTransaction();
       session.endSession();
 
-      // Get updated post
+      
       const updatedPost = await postmodel.findById(postid)
         .populate('likes', 'username')
         .populate('user', 'username profilepic');
