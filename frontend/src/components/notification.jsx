@@ -54,6 +54,7 @@ const NotificationPage = () => {
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleString('en-IN', {
       timeZone: 'Asia/Kolkata',
@@ -62,6 +63,34 @@ const NotificationPage = () => {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const getNotificationMessage = (notification) => {
+    if (typeof notification === 'string') {
+      return notification;
+    }
+    return notification.message || 'New notification';
+  };
+
+  const getNotificationDate = (notification) => {
+    if (typeof notification === 'object' && notification.createdAt) {
+      return notification.createdAt;
+    }
+    return new Date();
+  };
+
+  const handleNotificationClick = (notification) => {
+    if (typeof notification === 'string') {
+      
+      return;
+    }
+
+    if (notification.type === 'follow') {
+      navigate(`/profile/${notification.userId}`);
+    } else {
+      navigate(`/show-post/${notification.post}`);
+    }
+   
   };
 
   if (loading) {
@@ -118,6 +147,7 @@ const NotificationPage = () => {
             <div 
               key={index} 
               className="p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+              onClick={() => handleNotificationClick(notification)}
             >
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0">
@@ -128,9 +158,9 @@ const NotificationPage = () => {
                   </div>
                 </div>
                 <div className="flex-1">
-                  <p className="text-gray-800">{notification}</p>
+                  <p className="text-gray-800">{getNotificationMessage(notification)}</p>
                   <p className="text-xs text-gray-500 mt-1">
-                    {formatDate(notification.createdAt || new Date())}
+                    {formatDate(getNotificationDate(notification))}
                   </p>
                 </div>
               </div>
