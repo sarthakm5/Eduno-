@@ -40,47 +40,64 @@ const ProfilePictureUpload = () => {
   };
 
   const handleUpload = async () => {
-    if (!selectedFile) {
-      toast.error('Please select a file first');
-      return;
-    }
+  if (!selectedFile) {
+    toast.error('Please select a file first');
+    return;
+  }
 
-    setLoading(true);
+  setLoading(true);
 
-    try {
-      const formData = new FormData();
-      formData.append('profile', selectedFile);
-      const response = await axios.post(
-        `${import.meta.env.VITE_API}/api/profileupload`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.data.message === 'Profile picture updated successfully!') {
-        toast.success('Profile picture updated successfully!');
-        setTimeout(() => {
-          navigate('/addob');
-        }, 1500);
-      } else {
-        throw new Error(response.data.message || 'Failed to upload profile picture');
+  try {
+    const formData = new FormData();
+    formData.append('profile', selectedFile);
+    
+    const response = await axios.post(
+      `${import.meta.env.VITE_API}/api/profileupload`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`,
+        },
+        timeout: 30000, // 30 seconds timeout
       }
-    } catch (error) {
-      console.error('Upload error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to upload profile picture';
+    );
+
+    if (response.data.message.includes('successfully')) {
+      toast.success(response.data.message);
+      setTimeout(() => {
+        navigate('/addob');
+      }, 1500);
+    } else {
+      throw new Error(response.data.message || 'Failed to upload profile picture');
+    }
+  } catch (error) {
+    console.error('Upload error:', error);
+    
+    if (error.code === 'ECONNABORTED') {
+      toast.error('Request timed out. Please try again.');
+    } else if (error.response) {
+      // Server responded with a status code outside 2xx
+      const errorMessage = error.response.data?.message || 
+                          error.response.statusText || 
+                          'Failed to upload profile picture';
       toast.error(errorMessage);
-      if (error.response?.status === 401) {
+      
+      if (error.response.status === 401) {
         localStorage.removeItem('edunotoken');
         navigate('/signup');
       }
-    } finally {
-      setLoading(false);
+    } else if (error.request) {
+      // Request was made but no response received
+      toast.error('Network error. Please check your connection and try again.');
+    } else {
+      // Something happened in setting up the request
+      toast.error('An unexpected error occurred. Please try again.');
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleSkip = async () => {
     setLoading(true);
