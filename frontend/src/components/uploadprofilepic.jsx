@@ -19,18 +19,21 @@ const ProfilePictureUpload = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-   
+      // Validate file type
       if (!file.type.match('image.*')) {
-        toast.error('Please select an image file');
+        toast.error('Please select an image file (JPEG, PNG, etc.)');
         return;
       }
-   
+      
+      // Validate file size (5MB limit)
       if (file.size > 5 * 1024 * 1024) {
         toast.error('Image size should be less than 5MB');
         return;
       }
 
       setSelectedFile(file);
+      
+      // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewUrl(reader.result);
@@ -40,64 +43,64 @@ const ProfilePictureUpload = () => {
   };
 
   const handleUpload = async () => {
-  if (!selectedFile) {
-    toast.error('Please select a file first');
-    return;
-  }
+    if (!selectedFile) {
+      toast.error('Please select a file first');
+      return;
+    }
 
-  setLoading(true);
+    setLoading(true);
 
-  try {
-    const formData = new FormData();
-    formData.append('profile', selectedFile);
-    
-    const response = await axios.post(
-      `${import.meta.env.VITE_API}/api/profileupload`,
-      formData,
-      {
+    try {
+      const formData = new FormData();
+      formData.append('profile', selectedFile); // This matches the backend expectation
+      
+      // Add a timestamp to the URL to prevent caching issues
+      const apiUrl = `${import.meta.env.VITE_API}/api/profileupload?t=${Date.now()}`;
+      
+      const response = await axios.post(apiUrl, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`,
         },
         timeout: 30000, // 30 seconds timeout
-      }
-    );
+      });
 
-    if (response.data.message.includes('successfully')) {
-      toast.success(response.data.message);
-      setTimeout(() => {
-        navigate('/addob');
-      }, 1500);
-    } else {
-      throw new Error(response.data.message || 'Failed to upload profile picture');
-    }
-  } catch (error) {
-    console.error('Upload error:', error);
-    
-    if (error.code === 'ECONNABORTED') {
-      toast.error('Request timed out. Please try again.');
-    } else if (error.response) {
-      // Server responded with a status code outside 2xx
-      const errorMessage = error.response.data?.message || 
-                          error.response.statusText || 
-                          'Failed to upload profile picture';
-      toast.error(errorMessage);
-      
-      if (error.response.status === 401) {
-        localStorage.removeItem('edunotoken');
-        navigate('/signup');
+      if (response.data && response.data.message) {
+        toast.success(response.data.message);
+        setTimeout(() => {
+          navigate('/addob');
+        }, 1500);
+      } else {
+        throw new Error('Invalid response from server');
       }
-    } else if (error.request) {
-      // Request was made but no response received
-      toast.error('Network error. Please check your connection and try again.');
-    } else {
-      // Something happened in setting up the request
-      toast.error('An unexpected error occurred. Please try again.');
+    } catch (error) {
+      console.error('Upload error:', error);
+      
+      let errorMessage = 'Failed to upload profile picture';
+      
+      if (error.response) {
+        // Server responded with error status
+        errorMessage = error.response.data?.message || 
+                      error.response.statusText || 
+                      errorMessage;
+        
+        if (error.response.status === 401) {
+          localStorage.removeItem('edunotoken');
+          navigate('/signup');
+          return;
+        }
+      } else if (error.request) {
+        // Request was made but no response received
+        errorMessage = 'Network error. Please check your connection.';
+      } else if (error.code === 'ECONNABORTED') {
+        errorMessage = 'Request timed out. Please try again.';
+      }
+      
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
     }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const handleSkip = async () => {
     setLoading(true);
@@ -105,7 +108,7 @@ const ProfilePictureUpload = () => {
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API}/api/profileupload`,
-        { skip: true },  // Changed from { skip: 'true' } to boolean
+        { skip: true },
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -176,6 +179,7 @@ const ProfilePictureUpload = () => {
           </label>
           <input
             type="file"
+            id="profile-upload"
             accept="image/*"
             onChange={handleFileChange}
             className="block w-full text-sm text-gray-500
@@ -184,6 +188,7 @@ const ProfilePictureUpload = () => {
               file:text-sm file:font-semibold
               file:bg-blue-50 file:text-blue-700
               hover:file:bg-blue-100"
+            disabled={loading}
           />
         </div>
 
@@ -195,7 +200,7 @@ const ProfilePictureUpload = () => {
               loading || !selectedFile ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
             }`}
           >
-            {loading ? 'Processing...' : 'Upload Picture'}
+            {loading ? 'Uploading...' : 'Upload Picture'}
           </button>
 
           <button
