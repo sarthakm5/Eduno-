@@ -339,10 +339,10 @@ const ProfilePage = () => {
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
             <div className="flex-shrink-0 relative">
               <img
-                src={profileData.profilepic || '/default-avatar.png'}
+                src={profileData.profilepic}
                 alt="Profile"
                 className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-white shadow-md"
-                onError={(e) => { e.target.onerror = null; e.target.src = '/default-avatar.png'; }}
+                onError={(e) => { e.target.onerror = null; }}
               />
               {isOwnProfile && (
                 <>
