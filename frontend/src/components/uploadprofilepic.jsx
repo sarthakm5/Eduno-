@@ -53,7 +53,7 @@ const ProfilePictureUpload = () => {
     try {
       const formData = new FormData();
       // Use the exact field name your backend expects ('profile')
-      formData.append('profile', selectedFile, selectedFile.name); // Added filename as third parameter
+      formData.append('file', selectedFile, selectedFile.name); // Added filename as third parameter
 
       const response = await axios.post(
         `${import.meta.env.VITE_API}/api/profileupload`,
