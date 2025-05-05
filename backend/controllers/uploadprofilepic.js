@@ -10,26 +10,25 @@ const uploadprofilepic = async (req, res) => {
     // Verify token from headers
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
-      if (req.file) await fs.unlink(req.file.path).catch(console.error);
       return res.status(401).json({ message: "Authorization token missing" });
     }
 
     // Decode token
-    const decoded = jwt.verify(token, process.env.JWT);
-    if (!decoded) {
-      if (req.file) await fs.unlink(req.file.path).catch(console.error);
-      return res.status(401).json({ message: "Invalid token" });
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT);
+    } catch (jwtError) {
+      return res.status(401).json({ message: "Invalid or expired token" });
     }
 
     // Find user
     const user = await User.findOne({ username: decoded.username });
     if (!user) {
-      if (req.file) await fs.unlink(req.file.path).catch(console.error);
       return res.status(404).json({ message: "User not found" });
     }
 
     // Handle skip case
-    if (req.body.skip) {
+    if (req.body.skip === true || req.body.skip === 'true') {
       // Delete old profile picture if exists and not default
       if (user.profilepic && user.profilepic !== DEFAULT_PROFILE_PIC && user.profilepic.includes('cloudinary')) {
         const publicId = user.profilepic.split('/').slice(-2).join('/').split('.')[0];
@@ -55,6 +54,17 @@ const uploadprofilepic = async (req, res) => {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
+    // Validate file type and size
+    if (!req.file.mimetype.startsWith('image/')) {
+      await fs.unlink(req.file.path);
+      return res.status(400).json({ message: "Only image files are allowed" });
+    }
+
+    if (req.file.size > 5 * 1024 * 1024) {
+      await fs.unlink(req.file.path);
+      return res.status(400).json({ message: "File size exceeds 5MB limit" });
+    }
+
     // Upload to Cloudinary
     const result = await cloudinary.uploader.upload(req.file.path, {
       folder: "profile_pictures",
@@ -65,7 +75,7 @@ const uploadprofilepic = async (req, res) => {
     });
 
     // Delete temp file
-    await fs.unlink(req.file.path).catch(console.error);
+    await fs.unlink(req.file.path);
 
     // Delete old profile picture if exists and not default
     if (user.profilepic && user.profilepic !== DEFAULT_PROFILE_PIC && user.profilepic.includes('cloudinary')) {
@@ -80,7 +90,7 @@ const uploadprofilepic = async (req, res) => {
       { new: true, select: '-password' }
     ).lean();
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Profile picture updated successfully!",
       user: updatedUser,
       url: result.secure_url
@@ -90,14 +100,11 @@ const uploadprofilepic = async (req, res) => {
     console.error("Error:", error);
     if (req.file) await fs.unlink(req.file.path).catch(console.error);
     
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({ message: "Invalid token" });
-    }
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: "Token expired" });
+    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: "Authentication failed" });
     }
     
-    res.status(500).json({
+    return res.status(500).json({
       message: "Failed to update profile picture",
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
