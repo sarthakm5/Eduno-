@@ -42,7 +42,7 @@ const ProfilePictureUpload = () => {
     }
   };
 
-  const handleUpload = async () => {
+ const handleUpload = async () => {
     if (!selectedFile) {
       toast.error('Please select a file first');
       return;
@@ -52,18 +52,20 @@ const ProfilePictureUpload = () => {
 
     try {
       const formData = new FormData();
-      formData.append('profile', selectedFile); // This matches the backend expectation
-      
-      // Add a timestamp to the URL to prevent caching issues
-      const apiUrl = `${import.meta.env.VITE_API}/api/profileupload?t=${Date.now()}`;
-      
-      const response = await axios.post(apiUrl, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${token}`,
-        },
-        timeout: 30000, // 30 seconds timeout
-      });
+      // Use the exact field name your backend expects ('profile')
+      formData.append('profile', selectedFile, selectedFile.name); // Added filename as third parameter
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_API}/api/profileupload`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}`,
+          },
+          timeout: 30000,
+        }
+      );
 
       if (response.data && response.data.message) {
         toast.success(response.data.message);
@@ -79,9 +81,8 @@ const ProfilePictureUpload = () => {
       let errorMessage = 'Failed to upload profile picture';
       
       if (error.response) {
-        // Server responded with error status
-        errorMessage = error.response.data?.message || 
-                      error.response.statusText || 
+        errorMessage = error.response.data?.error || 
+                      error.response.data?.message || 
                       errorMessage;
         
         if (error.response.status === 401) {
@@ -89,11 +90,6 @@ const ProfilePictureUpload = () => {
           navigate('/signup');
           return;
         }
-      } else if (error.request) {
-        // Request was made but no response received
-        errorMessage = 'Network error. Please check your connection.';
-      } else if (error.code === 'ECONNABORTED') {
-        errorMessage = 'Request timed out. Please try again.';
       }
       
       toast.error(errorMessage);
