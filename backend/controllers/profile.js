@@ -6,7 +6,7 @@ const profile = async (req, res) => {
   try {
     const { userid, token } = req.body;
 
-    
+    // Validate userid
     if (!userid || !mongoose.Types.ObjectId.isValid(userid)) {
       return res.status(400).json({ 
         success: false,
@@ -14,7 +14,7 @@ const profile = async (req, res) => {
       });
     }
 
-    
+    // Fetch user (exclude sensitive fields)
     const user = await usermodel.findById(userid)
       .populate('post')
       .select('-password -__v -resetPasswordToken -resetPasswordExpires')
@@ -27,37 +27,36 @@ const profile = async (req, res) => {
       });
     }
 
-    
-    const followerDetails = await Promise.all(
-      user.followers.map(async followerId => {
-        const follower = await usermodel.findById(followerId)
-          .select('profilepic fullname username _id')
-          .lean();
-        return {
-          userId: follower._id,
-          name: follower.fullname,
-          username: follower.username,
-          profilepic: follower.profilepic
-        };
-      })
-    );
+    // Fetch followers and following in parallel (optimized with $in)
+    const [followerDetails, followingDetails] = await Promise.all([
+      // Followers
+      user.followers?.length > 0 
+        ? usermodel.find({ _id: { $in: user.followers } })
+            .select('profilepic fullname username _id')
+            .lean()
+            .then(users => users.map(user => ({
+              userId: user._id,
+              name: user.fullname,
+              username: user.username,
+              profilepic: user.profilepic
+            })))
+        : [],
+      
+      // Following
+      user.following?.length > 0 
+        ? usermodel.find({ _id: { $in: user.following } })
+            .select('profilepic fullname username _id')
+            .lean()
+            .then(users => users.map(user => ({
+              userId: user._id,
+              name: user.fullname,
+              username: user.username,
+              profilepic: user.profilepic
+            })))
+        : []
+    ]);
 
-    
-    const followingDetails = await Promise.all(
-      user.following.map(async followingId => {
-        const following = await usermodel.findById(followingId)
-          .select('profilepic fullname username _id')
-          .lean();
-        return {
-          userId: following._id,
-          name: following.fullname,
-          username: following.username,
-          profilepic: following.profilepic
-        };
-      })
-    );
-
-    
+    // Token and relationship checks
     let isOwnProfile = false;
     let isFollowing = false;
     let isPending = false;
@@ -73,17 +72,18 @@ const profile = async (req, res) => {
           isFollowing = user.followers.some(followerId => 
             followerId.toString() === currentUserId
           );
-          isPending = user.pendingfollows && 
-            user.pendingfollows.some(pendingId => 
-              pendingId.toString() === currentUserId
-            );
+          isPending = (user.pendingfollows || []).some(pendingId => 
+            pendingId.toString() === currentUserId
+          );
         }
       } catch (error) {
         console.error('Token verification error:', error);
+        // Uncomment to enforce token validity:
+        // return res.status(401).json({ success: false, message: 'Invalid token' });
       }
     }
 
-    
+    // Response
     const responseData = {
       success: true,
       message: 'User profile fetched successfully',
