@@ -63,7 +63,7 @@ const ProfilePictureUpload = () => {
             'Content-Type': 'multipart/form-data',
             'Authorization': `Bearer ${token}`,
           },
-          timeout: 30000,
+          timeout: 80000,
         }
       );
 
