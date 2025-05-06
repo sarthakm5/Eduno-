@@ -19,21 +19,18 @@ const ProfilePictureUpload = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Validate file type
+   
       if (!file.type.match('image.*')) {
-        toast.error('Please select an image file (JPEG, PNG, etc.)');
+        toast.error('Please select an image file');
         return;
       }
-      
-      // Validate file size (5MB limit)
+   
       if (file.size > 5 * 1024 * 1024) {
         toast.error('Image size should be less than 5MB');
         return;
       }
 
       setSelectedFile(file);
-      
-      // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewUrl(reader.result);
@@ -42,7 +39,7 @@ const ProfilePictureUpload = () => {
     }
   };
 
- const handleUpload = async () => {
+  const handleUpload = async () => {
     if (!selectedFile) {
       toast.error('Please select a file first');
       return;
@@ -52,9 +49,7 @@ const ProfilePictureUpload = () => {
 
     try {
       const formData = new FormData();
-      // Use the exact field name your backend expects ('profile')
-      formData.append('file', selectedFile, selectedFile.name); // Added filename as third parameter
-
+      formData.append('file', selectedFile);
       const response = await axios.post(
         `${import.meta.env.VITE_API}/api/profileupload`,
         formData,
@@ -63,36 +58,25 @@ const ProfilePictureUpload = () => {
             'Content-Type': 'multipart/form-data',
             'Authorization': `Bearer ${token}`,
           },
-          timeout: 80000,
         }
       );
 
-      if (response.data && response.data.message) {
-        toast.success(response.data.message);
+      if (response.data.message === 'Profile picture updated successfully!') {
+        toast.success('Profile picture updated successfully!');
         setTimeout(() => {
           navigate('/addob');
         }, 1500);
       } else {
-        throw new Error('Invalid response from server');
+        throw new Error(response.data.message || 'Failed to upload profile picture');
       }
     } catch (error) {
       console.error('Upload error:', error);
-      
-      let errorMessage = 'Failed to upload profile picture';
-      
-      if (error.response) {
-        errorMessage = error.response.data?.error || 
-                      error.response.data?.message || 
-                      errorMessage;
-        
-        if (error.response.status === 401) {
-          localStorage.removeItem('edunotoken');
-          navigate('/signup');
-          return;
-        }
-      }
-      
+      const errorMessage = error.response?.data?.message || 'Failed to upload profile picture';
       toast.error(errorMessage);
+      if (error.response?.status === 401) {
+        localStorage.removeItem('edunotoken');
+        navigate('/signup');
+      }
     } finally {
       setLoading(false);
     }
@@ -104,7 +88,7 @@ const ProfilePictureUpload = () => {
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API}/api/profileupload`,
-        { skip: true },
+        { skip: true },  // Changed from { skip: 'true' } to boolean
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -175,7 +159,6 @@ const ProfilePictureUpload = () => {
           </label>
           <input
             type="file"
-            id="profile-upload"
             accept="image/*"
             onChange={handleFileChange}
             className="block w-full text-sm text-gray-500
@@ -184,7 +167,6 @@ const ProfilePictureUpload = () => {
               file:text-sm file:font-semibold
               file:bg-blue-50 file:text-blue-700
               hover:file:bg-blue-100"
-            disabled={loading}
           />
         </div>
 
@@ -196,7 +178,7 @@ const ProfilePictureUpload = () => {
               loading || !selectedFile ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
             }`}
           >
-            {loading ? 'Uploading...' : 'Upload Picture'}
+            {loading ? 'Processing...' : 'Upload Picture'}
           </button>
 
           <button
