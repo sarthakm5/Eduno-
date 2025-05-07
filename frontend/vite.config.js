@@ -7,5 +7,6 @@ export default defineConfig({
     outDir: 'build',
     emptyOutDir: true 
   },
+  { "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] },
   base: '/'
 })
