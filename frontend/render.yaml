@@ -1,0 +1,6 @@
+static:
+  buildCommand: npm run build
+  publishDirectory: build
+  routes:
+    - path: /*
+      destination: /index.html
